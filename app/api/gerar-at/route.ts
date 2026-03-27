@@ -125,6 +125,7 @@ export async function GET(request: Request) {
       jornada_ativa:           jornadaAtiva,
       intra_ativa:             intraAtiva,
       jornada_inter_ativa:     interAtiva,
+      noturno_ativo:           jornada.jornada_noturna === true,
       local_trabalho:    s(contrato.local_trabalho),
       regiao_tribunal:   s(contrato.regiao_tribunal),
       data_hoje:      dataHoje(),

@@ -40,6 +40,7 @@ export async function GET(request: Request) {
     const vinculo = (dados.analise_juridica?.vinculo) || {};
     const ferias = (dados.analise_juridica?.ferias) || {};
     const jornada = (dados.analise_juridica?.jornada) || {};
+    const rescisao = (dados.analise_juridica?.rescisao) || {};
     const rescisaoIndireta = (dados.analise_juridica?.rescisao_indireta) || {};
     const situacoes = (rescisaoIndireta.situacoes_ocorridas as string[]) || [];
     const faltasLista = situacoes.map((s2: string) => {
@@ -56,7 +57,8 @@ export async function GET(request: Request) {
       rescisaoIndireta.ainda_trabalhando != null ||
       !!rescisaoIndireta.detalhes_irregularidades;
 
-    const vinculoAtivo = Object.values(vinculo).some(v =>
+    const vinculoAtivo = Object.entries(vinculo).some(([k, v]) =>
+      k !== 'obs_geral_bloco' && k !== 'ignorar' &&
       v != null && v !== '' && !(Array.isArray(v) && v.length === 0)
     );
 
@@ -126,6 +128,11 @@ export async function GET(request: Request) {
       intra_ativa:             intraAtiva,
       jornada_inter_ativa:     interAtiva,
       noturno_ativo:           jornada.jornada_noturna === true,
+      repouso_ativo:           jornada.repouso_semanal_respeitado === false,
+      caixa_ativo:             contrato.exercia_funcao_caixa === true,
+      aviso_previo_ativo:      !!rescisao.aviso_previo_situacao,
+      multa_477_ativa:         rescisao.verbas_prazo === false || rescisao.guias_entregues === 'Não',
+      seguro_desemprego_ativo: vinculoAtivo || rescisao.guias_entregues === 'Não recebeu',
       local_trabalho:    s(contrato.local_trabalho),
       regiao_tribunal:   s(contrato.regiao_tribunal),
       data_hoje:      dataHoje(),

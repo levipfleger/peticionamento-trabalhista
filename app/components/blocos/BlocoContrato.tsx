@@ -46,6 +46,8 @@ export const BlocoContrato = ({ dados, onChange }: BlocoProps) => {
         onChange={(v) => onChange('fgts_situacao', v)}
       />
 
+      <FormField label="Exercia função com recebimento de valores (caixa etc)?" type="boolean_sim_nao" value={dados.exercia_funcao_caixa} onChange={(v) => onChange('exercia_funcao_caixa', v)} />
+
       <div style={{ backgroundColor: '#fffbe6', padding: 15, borderRadius: 8, border: '1px solid #ffe58f', marginTop: 10 }}>
         <FormField label="Recebia Salário 'Por Fora'?" type="boolean_sim_nao" value={dados.tem_salario_por_fora} onChange={(v) => handleChange('tem_salario_por_fora', v)} />
 

@@ -112,6 +112,9 @@ const RenderHome = ({ onNew, onHistory, loading }: RenderHomeProps) => (
         <span>Atendimentos Prévios</span>
       </button>
     </div>
+    <p style={{ fontSize: '0.7rem', color: '#bbb', textAlign: 'center', margin: '16px 0 0' }}>
+      {process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev'}
+    </p>
   </div>
 );
 

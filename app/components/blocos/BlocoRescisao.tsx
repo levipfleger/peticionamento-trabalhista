@@ -116,6 +116,13 @@ export const BlocoRescisao = ({ dados, onChange }: BlocoProps) => {
           value={dados.aviso_previo_modo}
           onChange={(v) => onChange('aviso_previo_modo', v)}
         />
+        <FormField
+          label="Situação do Aviso Prévio"
+          type="select_radio"
+          options={['Não pago', 'Não trabalhado']}
+          value={dados.aviso_previo_situacao}
+          onChange={(v) => onChange('aviso_previo_situacao', v)}
+        />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 10 }}>
           <FormField
             label="Data do aviso-prévio"

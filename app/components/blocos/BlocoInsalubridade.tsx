@@ -12,6 +12,7 @@ const AGENTES_NOCIVOS = [
   'Eletricidade',
   'Inflamáveis',
   'Agentes biológicos',
+  'Limpeza de banheiro',
 ];
 
 export const BlocoInsalubridade = ({ dados, onChange }: BlocoProps) => {
@@ -63,6 +64,17 @@ export const BlocoInsalubridade = ({ dados, onChange }: BlocoProps) => {
         value={dados.adicional_recebido}
         onChange={(v) => onChange('adicional_recebido', v)}
       />
+
+      {dados.adicional_recebido === 'Insalubridade' && (
+        <div style={{ marginTop: 12 }}>
+          <FormField
+            label="O grau estava correto?"
+            type="boolean_sim_nao"
+            value={dados.grau_correto}
+            onChange={(v) => onChange('grau_correto', v)}
+          />
+        </div>
+      )}
 
       <hr style={{ border: '0', borderTop: '1px solid #eee', margin: '20px 0' }} />
 

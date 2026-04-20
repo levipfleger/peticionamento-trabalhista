@@ -9,14 +9,14 @@ import { fetchAtendimentos, salvarAtendimento, excluirAtendimento as deleteAtend
 // --- INTERFACES ---
 interface ClienteData {
   nome: string; cpf: string; estado_civil: string; nascimento: string; nacionalidade: string;
-  endereco: string; bairro: string; cidade: string; estado: string; cep: string;
+  cep: string; endereco: string; numero: string; bairro: string; cidade: string; estado: string;
   tel_residencial: string; tel_comercial: string; tel_celular: string; tel_recado: string;
   email: string; profissao: string;
   [key: string]: string;
 }
 
 interface EmpresaData {
-  nome: string; cnpj: string; endereco: string; bairro: string; cidade: string; estado: string; cep: string;
+  nome: string; cnpj: string; cep: string; endereco: string; numero: string; bairro: string; cidade: string; estado: string;
   [key: string]: string;
 }
 
@@ -76,13 +76,13 @@ interface RenderFormProps {
 // --- DADOS PADRÃO ---
 const EMPTY_CLIENTE: ClienteData = {
   nome: '', cpf: '', estado_civil: '', nascimento: '', nacionalidade: '',
-  endereco: '', bairro: '', cidade: '', estado: '', cep: '',
+  cep: '', endereco: '', numero: '', bairro: '', cidade: '', estado: '',
   tel_residencial: '', tel_comercial: '', tel_celular: '', tel_recado: '',
   email: '', profissao: ''
 };
 
 const EMPTY_EMPRESA: EmpresaData = {
-  nome: '', cnpj: '', endereco: '', bairro: '', cidade: '', estado: '', cep: ''
+  nome: '', cnpj: '', cep: '', endereco: '', numero: '', bairro: '', cidade: '', estado: ''
 };
 
 const INITIAL_DATA: FormState = {
@@ -216,25 +216,29 @@ const RenderForm = ({ data, onChange, onBack, onSave, loading, currentFile, acti
                 <label style={styles.label}>CPF</label>
                 <input style={styles.input} value={cliente.cpf} onChange={e => onChange('clientes', index, 'cpf', e.target.value)} maxLength={14} placeholder="000.000.000-00" />
               </div>
-              <div style={{ gridColumn: 'span 5' }}>
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={styles.label}>CEP</label>
+                <input style={styles.input} value={cliente.cep} onChange={e => onChange('clientes', index, 'cep', e.target.value)} maxLength={9} placeholder="00000-000" />
+              </div>
+              <div style={{ gridColumn: 'span 4' }}>
                 <label style={styles.label}>Endereço Residencial</label>
                 <input style={styles.input} value={cliente.endereco} onChange={e => onChange('clientes', index, 'endereco', e.target.value)} />
+              </div>
+              <div style={{ gridColumn: 'span 1' }}>
+                <label style={styles.label}>Nº</label>
+                <input style={styles.input} value={cliente.numero} onChange={e => onChange('clientes', index, 'numero', e.target.value)} />
               </div>
               <div style={{ gridColumn: 'span 2' }}>
                 <label style={styles.label}>Bairro</label>
                 <input style={styles.input} value={cliente.bairro} onChange={e => onChange('clientes', index, 'bairro', e.target.value)} />
               </div>
-              <div style={{ gridColumn: 'span 3' }}>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={styles.label}>Cidade</label>
                 <input style={styles.input} value={cliente.cidade} onChange={e => onChange('clientes', index, 'cidade', e.target.value)} />
               </div>
               <div style={{ gridColumn: 'span 1' }}>
                 <label style={styles.label}>UF</label>
                 <input style={styles.input} value={cliente.estado} onChange={e => onChange('clientes', index, 'estado', e.target.value)} maxLength={2} placeholder="SP" />
-              </div>
-              <div style={{ gridColumn: 'span 1' }}>
-                <label style={styles.label}>CEP</label>
-                <input style={styles.input} value={cliente.cep} onChange={e => onChange('clientes', index, 'cep', e.target.value)} maxLength={9} />
               </div>
               <div style={{ gridColumn: 'span 3' }}>
                 <label style={styles.label}>Profissão</label>
@@ -288,25 +292,29 @@ const RenderForm = ({ data, onChange, onBack, onSave, loading, currentFile, acti
                 <label style={styles.label}>CNPJ</label>
                 <input style={styles.input} value={empresa.cnpj} onChange={e => onChange('empresas', index, 'cnpj', e.target.value)} maxLength={18} />
               </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={styles.label}>CEP</label>
+                <input style={styles.input} value={empresa.cep} onChange={e => onChange('empresas', index, 'cep', e.target.value)} maxLength={9} placeholder="00000-000" />
+              </div>
               <div style={{ gridColumn: 'span 4' }}>
                 <label style={styles.label}>Endereço Comercial</label>
                 <input style={styles.input} value={empresa.endereco} onChange={e => onChange('empresas', index, 'endereco', e.target.value)} />
               </div>
-              <div style={{ gridColumn: 'span 3' }}>
+              <div style={{ gridColumn: 'span 1' }}>
+                <label style={styles.label}>Nº</label>
+                <input style={styles.input} value={empresa.numero} onChange={e => onChange('empresas', index, 'numero', e.target.value)} />
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={styles.label}>Bairro</label>
                 <input style={styles.input} value={empresa.bairro} onChange={e => onChange('empresas', index, 'bairro', e.target.value)} />
               </div>
-              <div style={{ gridColumn: 'span 4' }}>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={styles.label}>Cidade</label>
                 <input style={styles.input} value={empresa.cidade} onChange={e => onChange('empresas', index, 'cidade', e.target.value)} />
               </div>
               <div style={{ gridColumn: 'span 1' }}>
                 <label style={styles.label}>UF</label>
                 <input style={styles.input} value={empresa.estado} onChange={e => onChange('empresas', index, 'estado', e.target.value)} maxLength={2} placeholder="SP" />
-              </div>
-              <div style={{ gridColumn: 'span 4' }}>
-                <label style={styles.label}>CEP</label>
-                <input style={styles.input} value={empresa.cep} onChange={e => onChange('empresas', index, 'cep', e.target.value)} maxLength={9} />
               </div>
             </div>
           </div>
@@ -330,6 +338,16 @@ const RenderForm = ({ data, onChange, onBack, onSave, loading, currentFile, acti
             <input style={styles.input} value={data.interno.forma_pagamento} onChange={e => onChange('interno', null, 'forma_pagamento', e.target.value)} placeholder="Ex: Êxito final / Entrada + Parcelas" />
           </div>
         </div>
+      </div>
+
+      {/* BOTÕES NO FINAL */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '16px 0 4px' }}>
+        <button onClick={onSave} style={styles.btnSecondarySmall} title="Salvar alterações">
+          {loading ? <FaSpinner className="spin" /> : <FaSave />} Salvar
+        </button>
+        <button onClick={onNext} style={styles.btnPrimarySmall} disabled={loading}>
+          {loading ? <FaSpinner className="spin" /> : <>Avançar <FaArrowRight /></>}
+        </button>
       </div>
     </div>
   </div>

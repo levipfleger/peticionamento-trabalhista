@@ -22,7 +22,7 @@ export const BlocoAcidente = ({ dados, onChange }: BlocoProps) => {
     }
     if (campo === 'emitiu_cat' && valor !== 'Sim') onChange('quem_emitiu_cat', '');
     if (campo === 'afastado_acidente' && valor !== true) onChange('tempo_afastamento_acidente', '');
-    if (campo === 'sofreu_doenca' && valor !== 'Sim' && valor !== 'Suspeita') {
+    if (campo === 'sofreu_doenca' && valor !== 'Sim') {
       for (const f of ['doenca_diagnosticada', 'data_sintomas', 'diagnostico_relacionado', 'empresa_sabia_doenca']) onChange(f, '');
       onChange('atividade_exigia', []);
     }
@@ -36,7 +36,7 @@ export const BlocoAcidente = ({ dados, onChange }: BlocoProps) => {
   };
 
   const condAcidente = dados.sofreu_acidente === true;
-  const condDoenca = dados.sofreu_doenca === 'Sim' || dados.sofreu_doenca === 'Suspeita';
+  const condDoenca = dados.sofreu_doenca === 'Sim';
   const condAmbos = condAcidente || condDoenca;
 
   const toggleExigencia = (exigencia: string) => {
@@ -55,7 +55,7 @@ export const BlocoAcidente = ({ dados, onChange }: BlocoProps) => {
         <h4 style={{ margin: '0 0 15px 0', color: '#333', fontSize: '1.1rem' }}>Fatos Geradores</h4>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 15 }}>
           <FormField label="Sofreu acidente de trabalho durante o contrato?" type="boolean_sim_nao" value={dados.sofreu_acidente} onChange={(v) => handleChange('sofreu_acidente', v)} />
-          <FormField label="Sofreu ou desenvolveu doença ocupacional relacionada ao trabalho?" type="select_radio" options={['Sim', 'Não', 'Suspeita']} value={dados.sofreu_doenca} onChange={(v) => handleChange('sofreu_doenca', v)} />
+          <FormField label="Sofreu ou desenvolveu doença ocupacional relacionada ao trabalho?" type="select_radio" options={['Sim', 'Não']} value={dados.sofreu_doenca} onChange={(v) => handleChange('sofreu_doenca', v)} />
         </div>
       </div>
 

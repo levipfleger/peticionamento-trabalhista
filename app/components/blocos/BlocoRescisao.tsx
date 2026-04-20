@@ -10,6 +10,7 @@ interface BlocoProps {
 export const BlocoRescisao = ({ dados, onChange }: BlocoProps) => {
   const handleChange = (campo: string, valor: any) => {
     onChange(campo, valor);
+    if (campo === 'tipo_rescisao' && valor !== 'Com Justa causa') onChange('reversao_justa_causa', null);
     if (campo === 'verbas_pagas' && valor !== 'Parcialmente') onChange('verbas_pagas_valor', '');
     if (campo === 'verbas_prazo' && valor !== false) onChange('verbas_prazo_data', '');
     if (campo === 'valores_corretos' && valor !== false) onChange('valores_incorretos_obs', '');
@@ -19,10 +20,22 @@ export const BlocoRescisao = ({ dados, onChange }: BlocoProps) => {
     <div>
       <div style={{ marginBottom: 20 }}>
         <FormField
-          label="Motivo da rescisão do contrato"
-          value={dados.motivo_rescisao}
-          onChange={(v) => onChange('motivo_rescisao', v)}
+          label="Tipo de rescisão do contrato"
+          type="select"
+          options={['Sem justa causa', 'Com Justa causa', 'Pedido de demissão', 'Acordo comum', 'Rescisão por tempo de contrato']}
+          value={dados.tipo_rescisao}
+          onChange={(v) => handleChange('tipo_rescisao', v)}
         />
+        {dados.tipo_rescisao === 'Com Justa causa' && (
+          <div style={{ marginTop: 12, paddingLeft: 15, borderLeft: '3px solid #ff4d4f' }}>
+            <FormField
+              label="Haverá pedido de reversão da justa causa?"
+              type="boolean_sim_nao"
+              value={dados.reversao_justa_causa}
+              onChange={(v) => onChange('reversao_justa_causa', v)}
+            />
+          </div>
+        )}
       </div>
 
       {/* Pagamento das verbas rescisórias */}

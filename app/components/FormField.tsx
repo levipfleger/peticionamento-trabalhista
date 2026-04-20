@@ -1,6 +1,6 @@
 interface FormFieldProps {
   label: string;
-  type?: 'text' | 'boolean_sim_nao' | 'select_radio' | 'textarea' | 'date' | 'money' | 'number';
+  type?: 'text' | 'boolean_sim_nao' | 'select_radio' | 'select' | 'textarea' | 'date' | 'money' | 'number';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,6 +63,22 @@ export const FormField = ({ label, type = 'text', value, onChange, placeholder, 
             </label>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (type === 'select') {
+    return (
+      <div style={styles.fieldRow}>
+        <label style={styles.label}>{label}</label>
+        <select
+          style={{ ...styles.input, cursor: 'pointer' }}
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value || null)}
+        >
+          <option value="">Selecione...</option>
+          {options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+        </select>
       </div>
     );
   }

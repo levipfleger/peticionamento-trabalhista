@@ -42,6 +42,7 @@ export async function GET(request: Request) {
     const jornada = (dados.analise_juridica?.jornada) || {};
     const rescisao = (dados.analise_juridica?.rescisao) || {};
     const rescisaoIndireta = (dados.analise_juridica?.rescisao_indireta) || {};
+    const assedio = (dados.analise_juridica?.assedio) || {};
     const situacoes = (rescisaoIndireta.situacoes_ocorridas as string[]) || [];
     const faltasLista = situacoes.map((s2: string) => {
       const texto = s2 === 'Outras faltas graves do empregador' && rescisaoIndireta.outras_faltas_descricao
@@ -56,6 +57,24 @@ export async function GET(request: Request) {
       situacoes.length > 0 ||
       rescisaoIndireta.ainda_trabalhando != null ||
       !!rescisaoIndireta.detalhes_irregularidades;
+
+    const assedioTipos: string[] = Array.isArray(assedio.tipos_sofridos) ? assedio.tipos_sofridos : [];
+    const assedio_ativo = assedioTipos.some(t => ['Assédio moral', 'Humilhações', 'Ameaças'].includes(t));
+    const assedio_sexual_ativo = assedioTipos.includes('Assédio sexual');
+
+    const insalubridade = (dados.analise_juridica?.insalubridade) || {};
+    const agentesNocivos: string[] = Array.isArray(insalubridade.agentes_nocivos) ? insalubridade.agentes_nocivos : [];
+    const insalubridade_ativa =
+      agentesNocivos.length > 0 &&
+      (insalubridade.adicional_recebido !== 'Insalubridade' || insalubridade.grau_correto === false);
+    const pausas_termicas_ativa = agentesNocivos.includes('Calor/Frio excessivo');
+
+    const reversao_justa_causa_ativa =
+      rescisao.tipo_rescisao === 'Com Justa causa' && rescisao.reversao_justa_causa === true;
+
+    const acidente = (dados.analise_juridica?.acidente) || {};
+    const acidente_ativo          = acidente.sofreu_acidente === true;
+    const doenca_ocupacional_ativa = acidente.sofreu_doenca === 'Sim';
 
     const vinculoAtivo = Object.entries(vinculo).some(([k, v]) =>
       k !== 'obs_geral_bloco' && k !== 'ignorar' &&
@@ -133,6 +152,13 @@ export async function GET(request: Request) {
       aviso_previo_ativo:      !!rescisao.aviso_previo_situacao,
       multa_477_ativa:         rescisao.verbas_prazo === false || rescisao.guias_entregues === 'Não',
       seguro_desemprego_ativo: vinculoAtivo || rescisao.guias_entregues === 'Não recebeu',
+      assedio_ativo:           assedio_ativo,
+      assedio_sexual_ativo:    assedio_sexual_ativo,
+      insalubridade_ativa:     insalubridade_ativa,
+      pausas_termicas_ativa:        pausas_termicas_ativa,
+      reversao_justa_causa_ativa:   reversao_justa_causa_ativa,
+      acidente_ativo:               acidente_ativo,
+      doenca_ocupacional_ativa:     doenca_ocupacional_ativa,
       local_trabalho:    s(contrato.local_trabalho),
       regiao_tribunal:   s(contrato.regiao_tribunal),
       data_hoje:      dataHoje(),

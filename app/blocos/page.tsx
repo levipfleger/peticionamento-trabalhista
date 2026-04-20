@@ -236,11 +236,13 @@ function BlocosContent() {
 
             return (
               <button key={m.id} onClick={() => mudarAba(m.id)} style={activeTab === m.id ? styles.menuItemActive : styles.menuItem}>
-                <span style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: '0.9rem' }}>
+                <span style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: '0.9rem', flex: 1, minWidth: 0 }}>
                   {m.icon}
                   <span style={{ textAlign: 'left' }}>{m.label}</span>
                 </span>
-                {relevant && <FaCheckCircle color="#4cd137" size={12} />}
+                <span style={{ width: 16, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+                  {relevant && <FaCheckCircle color="#4cd137" size={12} />}
+                </span>
               </button>
             );
           })}

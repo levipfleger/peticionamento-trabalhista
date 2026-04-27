@@ -58,6 +58,9 @@ export async function GET(request: Request) {
       rescisaoIndireta.ainda_trabalhando != null ||
       !!rescisaoIndireta.detalhes_irregularidades;
 
+    const equiparacao_salarial_ativa = contrato.equiparacao_salarial === true;
+    const desvio_funcao_ativo        = contrato.desvio_funcao === true;
+
     const assedioTipos: string[] = Array.isArray(assedio.tipos_sofridos) ? assedio.tipos_sofridos : [];
     const assedio_ativo = assedioTipos.some(t => ['Assédio moral', 'Humilhações', 'Ameaças'].includes(t));
     const assedio_sexual_ativo = assedioTipos.includes('Assédio sexual');
@@ -67,7 +70,9 @@ export async function GET(request: Request) {
     const insalubridade_ativa =
       agentesNocivos.length > 0 &&
       (insalubridade.adicional_recebido !== 'Insalubridade' || insalubridade.grau_correto === false);
-    const pausas_termicas_ativa = agentesNocivos.includes('Calor/Frio excessivo');
+    const pausas_termicas_ativa   = agentesNocivos.includes('Calor/Frio excessivo');
+    const limpeza_banheiro_ativa  = agentesNocivos.includes('Limpeza de banheiro');
+    const periculosidade_ativa    = insalubridade.adicional_recebido === 'Periculosidade';
 
     const reversao_justa_causa_ativa =
       rescisao.tipo_rescisao === 'Com Justa causa' && rescisao.reversao_justa_causa === true;
@@ -75,6 +80,12 @@ export async function GET(request: Request) {
     const acidente = (dados.analise_juridica?.acidente) || {};
     const acidente_ativo          = acidente.sofreu_acidente === true;
     const doenca_ocupacional_ativa = acidente.sofreu_doenca === 'Sim';
+    const pensao_mensal_ativa =
+      acidente.afastamento_inss === true || acidente.ficaram_sequelas === true;
+
+    const estabilidades = (dados.analise_juridica?.estabilidades) || {};
+    const estabilidadesTipos: string[] = Array.isArray(estabilidades.indicios_estabilidade) ? estabilidades.indicios_estabilidade : [];
+    const gestante_ativa = estabilidadesTipos.includes('Gestante');
 
     const vinculoAtivo = Object.entries(vinculo).some(([k, v]) =>
       k !== 'obs_geral_bloco' && k !== 'ignorar' &&
@@ -152,11 +163,20 @@ export async function GET(request: Request) {
       aviso_previo_ativo:      !!rescisao.aviso_previo_situacao,
       multa_477_ativa:         rescisao.verbas_prazo === false || rescisao.guias_entregues === 'Não',
       seguro_desemprego_ativo: vinculoAtivo || rescisao.guias_entregues === 'Não recebeu',
+      vinculo_ativo_fgts:      vinculoAtivo,
+      vinculo_ativo_inss:      vinculoAtivo,
+      vinculo_ativo_ir:        vinculoAtivo,
       assedio_ativo:           assedio_ativo,
       assedio_sexual_ativo:    assedio_sexual_ativo,
       insalubridade_ativa:     insalubridade_ativa,
       pausas_termicas_ativa:        pausas_termicas_ativa,
+      limpeza_banheiro_ativa:       limpeza_banheiro_ativa,
+      periculosidade_ativa:         periculosidade_ativa,
       reversao_justa_causa_ativa:   reversao_justa_causa_ativa,
+      pensao_mensal_ativa:          pensao_mensal_ativa,
+      gestante_ativa:               gestante_ativa,
+      equiparacao_salarial_ativa:   equiparacao_salarial_ativa,
+      desvio_funcao_ativo:          desvio_funcao_ativo,
       acidente_ativo:               acidente_ativo,
       doenca_ocupacional_ativa:     doenca_ocupacional_ativa,
       local_trabalho:    s(contrato.local_trabalho),

@@ -33,6 +33,20 @@ export const BlocoContrato = ({ dados, onChange }: BlocoProps) => {
       <div style={{ border: '1px solid #eee', padding: 15, borderRadius: 8, marginBottom: 15 }}>
         <FormField label="Função Exercida (Dia a dia)" value={dados.funcao_exercida} onChange={(v) => onChange('funcao_exercida', v)} />
         <FormField label="Função na Carteira (CTPS)" value={dados.funcao_registrada} onChange={(v) => onChange('funcao_registrada', v)} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 10 }}>
+          <FormField
+            label="Haverá pedido de equiparação salarial?"
+            type="boolean_sim_nao"
+            value={dados.equiparacao_salarial}
+            onChange={(v) => onChange('equiparacao_salarial', v)}
+          />
+          <FormField
+            label="Haverá pedido de desvio de função?"
+            type="boolean_sim_nao"
+            value={dados.desvio_funcao}
+            onChange={(v) => onChange('desvio_funcao', v)}
+          />
+        </div>
         <FormField label="Obs. sobre a função (Desvio/Acúmulo)" type="textarea" value={dados.obs_funcao} onChange={(v) => onChange('obs_funcao', v)} />
       </div>
 

@@ -105,6 +105,10 @@ export async function GET(request: Request) {
       ferias.decimo_terceiro_status === 'Parcialmente' ||
       ferias.ficou_sem_decimo === true;
 
+    const vinculo_ou_decimo_ativo  = vinculoAtivo || decimoTerceiroAtivo;
+    const vinculo_ou_aviso_ativo   = vinculoAtivo || !!rescisao.aviso_previo_situacao;
+    const acidente_ou_doenca_ativa = acidente_ativo || doenca_ocupacional_ativa;
+
     const feriasFimFrase =
       ferias.ferias_status === 'Pagas, mas não gozadas'
         ? 'teve as férias gozadas, muito embora pagas'
@@ -179,6 +183,9 @@ export async function GET(request: Request) {
       desvio_funcao_ativo:          desvio_funcao_ativo,
       acidente_ativo:               acidente_ativo,
       doenca_ocupacional_ativa:     doenca_ocupacional_ativa,
+      vinculo_ou_decimo_ativo:      vinculo_ou_decimo_ativo,
+      vinculo_ou_aviso_ativo:       vinculo_ou_aviso_ativo,
+      acidente_ou_doenca_ativa:     acidente_ou_doenca_ativa,
       local_trabalho:    s(contrato.local_trabalho),
       regiao_tribunal:   s(contrato.regiao_tribunal),
       data_hoje:      dataHoje(),

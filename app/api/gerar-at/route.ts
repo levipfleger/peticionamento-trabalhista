@@ -4,33 +4,16 @@ import path from 'path';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 
-const dataDir = process.env.DATA_DIR
-  ? path.resolve(process.env.DATA_DIR)
-  : path.resolve(process.cwd(), '..', 'dados-carmes');
-
-function caminhoSeguro(filename: string): string | null {
-  if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) return null;
-  const resolved = path.resolve(dataDir, filename);
-  if (!resolved.startsWith(dataDir + path.sep) && resolved !== dataDir) return null;
-  return resolved;
-}
-
 function dataHoje(): string {
   const d = new Date();
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const filename = searchParams.get('file');
-    if (!filename) return NextResponse.json({ error: 'Parâmetro file obrigatório' }, { status: 400 });
-
-    const filePath = caminhoSeguro(filename);
-    if (!filePath) return NextResponse.json({ error: 'Nome de arquivo inválido' }, { status: 400 });
-
-    const raw = await fs.promises.readFile(filePath, 'utf-8');
-    const dados = JSON.parse(raw);
+    const body = await request.json();
+    const dados = body.dados;
+    if (!dados) return NextResponse.json({ error: 'Parâmetro dados obrigatório' }, { status: 400 });
 
     const c = (dados.clientes?.[0]) || {};
     const e = (dados.empresas?.[0]) || {};
@@ -192,7 +175,8 @@ export async function GET(request: Request) {
     });
 
     const buf: Buffer = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
-    const nomeArquivo = filename.replace('.json', '') + ' - AT.docx';
+    const nomeBaseRaw: string = typeof dados.filename === 'string' ? dados.filename : 'documento';
+    const nomeArquivo = nomeBaseRaw.replace('.json', '') + ' - AT.docx';
 
     return new NextResponse(new Uint8Array(buf), {
       status: 200,

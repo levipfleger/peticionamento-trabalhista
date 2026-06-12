@@ -5,12 +5,37 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { FaArrowLeft, FaHome, FaFileWord, FaSpinner, FaCheckCircle } from 'react-icons/fa';
 import type { CSSProperties } from 'react';
 import { fetchAtendimentos } from '../../lib/api';
+import type { AtendimentoItem } from '../../lib/api';
+
+async function baixarArquivo(url: string, dados: AtendimentoItem, fallbackName: string) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dados }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+    throw new Error(err.error ?? res.statusText);
+  }
+  const disposition = res.headers.get('Content-Disposition') || '';
+  const match = disposition.match(/filename\*=UTF-8''([^;]+)/);
+  const nomeArquivo = match ? decodeURIComponent(match[1]) : fallbackName;
+
+  const blob = await res.blob();
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = nomeArquivo;
+  a.click();
+  URL.revokeObjectURL(blobUrl);
+}
 
 function DocumentosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const filename = searchParams.get('file');
 
+  const [dadosAtendimento, setDadosAtendimento] = useState<AtendimentoItem | null>(null);
   const [nomeCliente, setNomeCliente] = useState<string>('');
   const [baixando, setBaixando] = useState(false);
   const [baixado, setBaixado] = useState(false);
@@ -23,6 +48,7 @@ function DocumentosContent() {
       .then(lista => {
         const item = lista.find(i => i.filename === filename);
         if (item) {
+          setDadosAtendimento(item);
           const clientes = Array.isArray(item.clientes) ? item.clientes : [];
           setNomeCliente(clientes[0]?.nome || filename.replace('.json', ''));
         }
@@ -30,31 +56,27 @@ function DocumentosContent() {
       .catch(() => {});
   }, [filename]);
 
-  const baixarDocumento = () => {
-    if (!filename) return;
+  const baixarDocumento = async () => {
+    if (!dadosAtendimento) return;
     setBaixando(true);
-    window.open(`/api/gerar-documento?file=${encodeURIComponent(filename)}`, '_blank');
-    setTimeout(() => { setBaixando(false); setBaixado(true); }, 1500);
+    try {
+      await baixarArquivo('/api/gerar-documento', dadosAtendimento, `${(filename ?? 'documento').replace('.json', '')} - Documentos.docx`);
+      setBaixado(true);
+    } catch (err) {
+      alert(`Erro ao gerar documento: ${(err as Error).message}`);
+    } finally {
+      setBaixando(false);
+    }
   };
 
   const baixarAt = async () => {
-    if (!filename) return;
+    if (!dadosAtendimento) return;
     setBaixandoAt(true);
     try {
-      const res = await fetch(`/api/gerar-at?file=${encodeURIComponent(filename)}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
-        alert(`Erro ao gerar AT: ${err.error ?? res.statusText}`);
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename.replace('.json', '') + ' - AT.docx';
-      a.click();
-      URL.revokeObjectURL(url);
+      await baixarArquivo('/api/gerar-at', dadosAtendimento, `${(filename ?? 'documento').replace('.json', '')} - AT.docx`);
       setBaixadoAt(true);
+    } catch (err) {
+      alert(`Erro ao gerar AT: ${(err as Error).message}`);
     } finally {
       setBaixandoAt(false);
     }

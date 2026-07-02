@@ -50,12 +50,23 @@ export async function POST(request: Request) {
 
     const insalubridade = (dados.analise_juridica?.insalubridade) || {};
     const agentesNocivos: string[] = Array.isArray(insalubridade.agentes_nocivos) ? insalubridade.agentes_nocivos : [];
+    // Agentes que têm pedido PRÓPRIO e por isso não devem disparar também o
+    // pedido genérico de insalubridade:
+    //  - "Limpeza de banheiro" tem o pedido de insalubridade em grau máximo;
+    //  - "Eletricidade" e "Inflamáveis" são agentes de periculosidade (NR-16),
+    //    não de insalubridade, e a CLT (art. 193, §2º) veda a cumulação.
+    const AGENTES_PERICULOSIDADE = ['Eletricidade', 'Inflamáveis'];
+    const agentesInsalubridade = agentesNocivos.filter(
+      a => a !== 'Limpeza de banheiro' && !AGENTES_PERICULOSIDADE.includes(a)
+    );
     const insalubridade_ativa =
-      agentesNocivos.length > 0 &&
+      agentesInsalubridade.length > 0 &&
       (insalubridade.adicional_recebido !== 'Insalubridade' || insalubridade.grau_correto === false);
     const pausas_termicas_ativa   = agentesNocivos.includes('Calor/Frio excessivo');
     const limpeza_banheiro_ativa  = agentesNocivos.includes('Limpeza de banheiro');
-    const periculosidade_ativa    = insalubridade.adicional_recebido === 'Periculosidade';
+    const periculosidade_ativa    =
+      insalubridade.adicional_recebido === 'Periculosidade' ||
+      AGENTES_PERICULOSIDADE.some(a => agentesNocivos.includes(a));
 
     const reversao_justa_causa_ativa =
       rescisao.tipo_rescisao === 'Com Justa causa' && rescisao.reversao_justa_causa === true;

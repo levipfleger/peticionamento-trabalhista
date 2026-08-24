@@ -24,7 +24,7 @@ function listaEmpresas(empresas: Record<string, unknown>[]): string {
   return nomes.slice(0, -1).join(', ') + ' e ' + nomes[nomes.length - 1];
 }
 
-function gerarDocCliente(templateBuf: Buffer, c: Record<string, unknown>, empresas: Record<string, unknown>[], i: Record<string, unknown>): Buffer {
+function gerarDocCliente(templateBuf: Buffer, c: Record<string, unknown>, empresas: Record<string, unknown>[], i: Record<string, unknown>, notas: string): Buffer {
   const s = (v: unknown) => (typeof v === 'string' ? v : '');
   const e = empresas[0] || {};
   const telCel = parseFone(s(c.tel_celular));
@@ -65,6 +65,8 @@ function gerarDocCliente(templateBuf: Buffer, c: Record<string, unknown>, empres
     forma_pagamento:   s(i.forma_pagamento),
     responsavel:       s(i.responsavel),
     data_hoje:         dataHoje(),
+    anotacoes:         notas,
+    tem_anotacoes:     notas.length > 0,
   });
 
   return doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' }) as Buffer;
@@ -83,6 +85,7 @@ export async function POST(request: Request) {
       ? dados.empresas
       : [{}];
     const i = dados.interno || {};
+    const notas = String(dados.analise_juridica?.anotacoes?.anotacoes_livres ?? '').trim();
 
     const templatePath = path.join(process.cwd(), 'public', 'template-documentos', 'template-carmes.docx');
     const templateBuf = await fs.promises.readFile(templatePath);
@@ -92,7 +95,7 @@ export async function POST(request: Request) {
 
     // Um único cliente → devolve o .docx diretamente
     if (clientes.length === 1) {
-      const buf = gerarDocCliente(templateBuf, clientes[0], empresas, i);
+      const buf = gerarDocCliente(templateBuf, clientes[0], empresas, i, notas);
       const s = (v: unknown) => (typeof v === 'string' ? v : '');
       const nome = s(clientes[0].nome) || 'Cliente';
       const nomeArquivo = `${nomeBase} - ${nome} - Documentos.docx`;
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
 
     for (let idx = 0; idx < clientes.length; idx++) {
       const c = clientes[idx];
-      const buf = gerarDocCliente(templateBuf, c, empresas, i);
+      const buf = gerarDocCliente(templateBuf, c, empresas, i, notas);
       const nome = s(c.nome) || `Cliente ${idx + 1}`;
       archive.file(`${nomeBase} - ${nome} - Documentos.docx`, buf);
     }
